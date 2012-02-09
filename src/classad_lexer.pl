@@ -83,6 +83,8 @@ drest(L) --> "", {L=[]}.
 % prolog proof, define these starting with longest tokens first.
 sym(T) --> "=?=", {T='=?='}.
 sym(T) --> "=!=", {T='=!='}.
+sym(T) --> "||", {T='||'}.
+sym(T) --> "&&", {T='&&'}.
 sym(T) --> "<=", {T='<='}.
 sym(T) --> ">=", {T='>='}.
 sym(T) --> "==", {T='=='}.
