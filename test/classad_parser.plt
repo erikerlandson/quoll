@@ -98,4 +98,29 @@ test('*/ seq 3', [nondet]) :-
    parse(T, E),
    assertion(E == '/'('*'('-'(2),f([b])), '+'(a))).
 
+test('+ seq 1', [nondet]) :-
+   lex("2+a", T),
+   parse(T, E),
+   assertion(E == '+'(2,a)).
+
+test('- seq 1', [nondet]) :-
+   lex("2-a", T),
+   parse(T, E),
+   assertion(E == '-'(2,a)).
+
+test('+- seq 1', [nondet]) :-
+   lex("2-a+b", T),
+   parse(T, E),
+   assertion(E == '+'('-'(2,a), b)).
+
+test('+- seq 2', [nondet]) :-
+   lex("2*a-a/3+5*b", T),
+   parse(T, E),
+   assertion(E == '+'('-'('*'(2,a),'/'(a,3)), '*'(5,b))).
+
+test('+- seq 3', [nondet]) :-
+   lex("2*a-a/-3+-5*b", T),
+   parse(T, E),
+   assertion(E == '+'('-'('*'(2,a),'/'(a,'-'(3))), '*'('-'(5),b))).
+
 :- end_tests(classad_parser_ut).
