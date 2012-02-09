@@ -15,7 +15,7 @@ test('empty string', [nondet]) :-
     assertion(T == []).
 
 test('whitespace only', [nondet]) :-
-    lex("  ", T),
+    lex(" \t ", T),
     assertion(T == []).
 
 test('string token', [nondet]) :-
@@ -42,6 +42,26 @@ test('exp notation 2', [nondet]) :-
     lex("1e1", T),
     assertion(T == [10.0]).
 
+test('exp notation 3', [nondet]) :-
+    lex("1.e+1", T),
+    assertion(T == [10.0]).
+
+test('variable', [nondet]) :-
+    lex("a", T),
+    assertion(T == ['a']).
+
+test('variable 2', [nondet]) :-
+    lex("a2", T),
+    assertion(T == ['a2']).
+
+test('variable 3', [nondet]) :-
+    lex("a2 b4", T),
+    assertion(T == ['a2', 'b4']).
+
+test('variables with whitespace', [nondet]) :-
+    lex(" a2 b4 ", T),
+    assertion(T == ['a2', 'b4']).
+
 test('symbol =?=', [nondet]) :-
     lex("=?=", T),
     assertion(T == ['=?=']).
@@ -50,8 +70,16 @@ test('symbol ==', [nondet]) :-
     lex("==", T),
     assertion(T == ['==']).
 
-test('symbol =', [nondet]) :-
-    lex("=", T),
-    assertion(T == ['=']).
+test('all symbols', [nondet]) :-
+    lex("=?==!=<=>===!=()[],<>+-*/!:=", T),
+    assertion(T == ['=?=','=!=','<=','>=','==','!=','(',')','[',']',',','<','>','+','-','*','/','!',':','=']).
+
+test('expression 1', [nondet]) :-
+    lex("4*a+b-c/4e1*e", T),
+    assertion(T == [4, '*', 'a', '+', 'b', '-', 'c', '/', 40.0, '*', 'e']).
+
+test('expression 2', [nondet]) :-
+    lex("ifthenelse(name =!= \"fred\", name, \"wilma\")", T),
+    assertion(T == ['ifthenelse', '(', 'name', '=!=', str('fred'), ',', 'name', ',', str('wilma'), ')']).
 
 :- end_tests(classad_lexer_ut).

@@ -44,18 +44,15 @@ tok(T) --> sym(T).
 str(S) --> "\"", strseq(SS), "\"", {atom_codes(A, SS), S=str(A)}.
 
 strseq(SS) --> regchar(C), strseq(R), {SS=[C|R]}.
-strseq(SS) --> escchar(C), strseq(R), {SS=[C|R]}.
 strseq(SS) --> "", {SS=[]}.
 
-escchar(C) --> "\\", [CC], {C = CC}.
-regchar(C) --> [CC], { char_type(CC, ascii), CC \= "\\", C=CC }.
-
+regchar(C) --> [C], { [C]\="\"", char_type(C, ascii) }.
 
 % expansion of variable name tokens
 var(V) --> vhead(C), vrest(R), {atom_codes(V, [C|R])}.
 
-vhead(C) --> [CC], { char_type(CC, alpha), C=CC }.
-vrest(L) --> [CC], {char_type(CC, alnum)}, vrest(R), {L=[CC|R]}.
+vhead(C) --> [C], { char_type(C, alpha) }.
+vrest(L) --> [C], { char_type(C, alnum) }, vrest(R), {L=[C|R]}.
 vrest(L) --> "", {L=[]}.
 
 
@@ -71,9 +68,9 @@ dpseq(S) --> "", {S=[]}.
 expseq(S) --> expchar(E), expsign(ES), dhead(D), drest(R), {flatten([E,ES,D,R], S)}.
 expseq(S) --> "", {S=[]}.
 
-expchar(C) --> [CC], {member(CC, "eE"), C=CC}.
+expchar(C) --> [C], { member(C, "eE") }.
 
-expsign(C) --> [CC], {member(CC, "+-"), C=CC}.
+expsign(C) --> [C], { member(C, "+-") }.
 expsign(C) --> "", {C=[]}.
 
 dhead(D) --> [D], {char_type(D, digit)}.
