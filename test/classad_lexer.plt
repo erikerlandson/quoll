@@ -2,9 +2,6 @@
 :- use_module(library(plunit)).
 
 :- use_module(library(lists)).
-:- use_module(library(maplist)).
-:- use_module(library(assoc)).
-:- use_module(library(ugraphs)).
 
 :- use_module('../src/classad_lexer.pl').
 
