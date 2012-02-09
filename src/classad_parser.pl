@@ -15,16 +15,14 @@ assign(A) :- ident(V), ['='], expr(E), { A = '='(V, E) }.
 expr(E) --> addsubseq(E).
 
 addsubseq(E) --> muldivseq(SE), addsubrest(SE, E).
-addsubrest(SE, E) --> [OP], {member(OP, ['+','-'])}, muldivseq(SE2), {TE=..[OP,SE,SE2]}, addsubrest(TE, E).
+addsubrest(SE, E) --> [OP], { member(OP, ['+','-']) }, muldivseq(SE2), { TE =.. [OP,SE,SE2] }, addsubrest(TE, E).
 addsubrest(E, E) --> [].
 
 muldivseq(E) --> unary(SE), muldivrest(SE, E).
-muldivrest(SE, E) --> [OP], {member(OP, ['*','/'])}, unary(SE2), {TE=..[OP,SE,SE2]}, muldivrest(TE, E).
+muldivrest(SE, E) --> [OP], { member(OP, ['*','/']) }, unary(SE2), { TE =.. [OP,SE,SE2] }, muldivrest(TE, E).
 muldivrest(E, E) --> [].
 
-unary(E) --> ['!'], unary(SE), { E = '!'(SE) }.
-unary(E) --> ['-'], unary(SE), { E = '-'(SE) }.
-unary(E) --> ['+'], unary(SE), { E = '+'(SE) }.
+unary(E) --> [OP], { member(OP,['!','-','+']) }, unary(SE), { E =.. [OP,SE] }.
 unary(E) --> atomic(E).
 
 atomic(E) --> func(E).
