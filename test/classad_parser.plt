@@ -23,4 +23,54 @@ test('num expr', [nondet]) :-
     parse(T, E),
     assertion(E == 42).
 
+test('func 0', [nondet]) :-
+    lex("f()", T),
+    parse(T, E),
+    assertion(E == f([])).
+
+test('func 1', [nondet]) :-
+    lex("f(a)", T),
+    parse(T, E),
+    assertion(E == f(['a'])).
+
+test('func 2', [nondet]) :-
+    lex("f(a, 1)", T),
+    parse(T, E),
+    assertion(E == f(['a', 1])).
+
+test('paren', [nondet]) :-
+    lex("(a)", T),
+    parse(T, E),
+    assertion(E == 'a').
+
+test('op !', [nondet]) :-
+    lex("!true", T),
+    parse(T, E),
+    assertion(E == '!'('true')).
+
+test('op -', [nondet]) :-
+    lex("-1.0", T),
+    parse(T, E),
+    assertion(E == '-'(1.0)).
+
+test('op +', [nondet]) :-
+    lex("+1.0", T),
+    parse(T, E),
+    assertion(E == '+'(1.0)).
+
+test('composed unary 1', [nondet]) :-
+    lex("--1.0", T),
+    parse(T, E),
+    assertion(E == '-'('-'(1.0))).
+
+test('composed unary 2', [nondet]) :-
+    lex("!+--1.0", T),
+    parse(T, E),
+    assertion(E == '!'('+'('-'('-'(1.0))))).
+
+test('arg nesting', [nondet]) :-
+    lex("f(g(-1), -(-2))", T),
+    parse(T, E),
+    assertion(E == f([g(['-'(1)]), '-'('-'(2))])).
+
 :- end_tests(classad_parser_ut).
