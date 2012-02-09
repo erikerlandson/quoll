@@ -73,4 +73,29 @@ test('arg nesting', [nondet]) :-
     parse(T, E),
     assertion(E == f([g(['-'(1)]), '-'('-'(2))])).
 
+test('* seq 1', [nondet]) :-
+   lex("2 * a", T),
+   parse(T, E),
+   assertion(E == '*'(2,a)).
+
+test('/ seq 1', [nondet]) :-
+   lex("2 / a", T),
+   parse(T, E),
+   assertion(E == '/'(2,a)).
+
+test('*/ seq 1', [nondet]) :-
+   lex("2 * b / a", T),
+   parse(T, E),
+   assertion(E == '/'('*'(2,b), a)).
+
+test('*/ seq 2', [nondet]) :-
+   lex("-2 * b / +a", T),
+   parse(T, E),
+   assertion(E == '/'('*'('-'(2),b), '+'(a))).
+
+test('*/ seq 3', [nondet]) :-
+   lex("-2 * f(b) / +a", T),
+   parse(T, E),
+   assertion(E == '/'('*'('-'(2),f([b])), '+'(a))).
+
 :- end_tests(classad_parser_ut).
