@@ -24,7 +24,7 @@ parse_tl(TL, E) :- expr(E, TL, []).
 parse_assign_tl(TL, E) :- assign(E, TL, []).
 
 % a classad assignment to a variable
-assign(A) :- ident(V), ['='], expr(E), { A = '='(V, E) }.
+assign(A) --> ident(V), ['='], expr(E), { A = '='(V, E) }.
 
 expr(E) --> orseq(E).
 
