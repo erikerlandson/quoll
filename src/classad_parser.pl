@@ -12,7 +12,15 @@ parse_assign(TL, E) :- assign(E, TL, []).
 % a classad assignment to a variable
 assign(A) :- ident(V), ['='], expr(E), { A = '='(V, E) }.
 
-expr(E) --> comp(E).
+expr(E) --> orseq(E).
+
+orseq(E) --> andseq(SE), orrest(SE, E).
+orrest(SE, E) --> [OP], { member(OP, ['||']) }, andseq(SE2), { TE =.. [OP,SE,SE2] }, orrest(TE, E).
+orrest(E, E) --> [].
+
+andseq(E) --> comp(SE), andrest(SE, E).
+andrest(SE, E) --> [OP], { member(OP, ['&&']) }, comp(SE2), { TE =.. [OP,SE,SE2] }, andrest(TE, E).
+andrest(E, E) --> [].
 
 comp(E) --> addsubseq(SE1), [OP], { member(OP, ['==','!=','<=','>=','<','>','=?=','=!=']) }, addsubseq(SE2), { E =.. [OP,SE1,SE2] }.
 comp(E) --> addsubseq(E).

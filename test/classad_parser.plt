@@ -138,4 +138,29 @@ test('comp <', [nondet]) :-
     parse(T, E),
     assertion(E == '<'('*'('-'(2),a), '-'('+'(b, '-'(4)), c))).
 
+test('and 1', [nondet]) :-
+    lex("true && false", T),
+    parse(T, E),
+    assertion(E == '&&'(true, false)).
+
+test('and 2', [nondet]) :-
+    lex("true && false && b", T),
+    parse(T, E),
+    assertion(E == '&&'('&&'(true, false), b)).
+
+test('or 1', [nondet]) :-
+    lex("true || false", T),
+    parse(T, E),
+    assertion(E == '||'(true, false)).
+
+test('or 2', [nondet]) :-
+    lex("true || false || b", T),
+    parse(T, E),
+    assertion(E == '||'('||'(true, false), b)).
+
+test('or and 1', [nondet]) :-
+    lex("2 < 3  &&  3 > 2   ||   1+2 < 1+3  &&  2+3 < 2*3", T),
+    parse(T, E),
+    assertion(E == '||'('&&'('<'(2,3), '>'(3, 2)), '&&'('<'('+'(1,2), '+'(1,3)),'<'('+'(2,3), '*'(2,3))))).
+
 :- end_tests(classad_parser_ut).
