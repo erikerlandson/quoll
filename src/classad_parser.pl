@@ -1,13 +1,27 @@
 :- module(classad_parser,
-          [parse/2,           % parse(+TokenList, -ExprTree)
-           parse_assign/2     % parse_assign(+TokenList, -ExprTree)
+          [parse/2,            % parse(+String, -ExprTree)
+           parse_assign/2,     % parse_assign(+String, -ExprTree)
+           parse_tl/2,         % parse_tl(+TokenList, -ExprTree)
+           parse_assign_tl/2   % parse_assign_tl(+TokenList, -ExprTree)
           ]).
 
 :- use_module(library(lists)).
 
+:- use_module(classad_lexer).
+
+% lex and parse a string to get an expression list
+parse(S, E) :-
+    classad_lexer:lex(S, TL),
+    parse_tl(TL, E).
+
+% lex and parse a string to get an assignment expression
+parse_assign(S, E) :-
+    classad_lexer:lex(S, TL),
+    parse_assign_tl(TL, E).
+
 % invoke the grammar rule predicates on a token list to get an expr-tree
-parse(TL, E) :- expr(E, TL, []).
-parse_assign(TL, E) :- assign(E, TL, []).
+parse_tl(TL, E) :- expr(E, TL, []).
+parse_assign_tl(TL, E) :- assign(E, TL, []).
 
 % a classad assignment to a variable
 assign(A) :- ident(V), ['='], expr(E), { A = '='(V, E) }.
