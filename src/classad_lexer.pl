@@ -31,8 +31,8 @@ tok(T) --> str(T).
 % that.
 tok(T) --> num(T).
 
-% variable names are tokens
-tok(T) --> var(T).
+% variable names, or identifiers, are tokens
+tok(T) --> ident(T).
 
 % various approved symbols/operators are tokens
 % put this expansion last, to allow longer kinds of token, such as numbers,
@@ -48,12 +48,13 @@ strseq(SS) --> "", {SS=[]}.
 
 regchar(C) --> [C], { [C]\="\"", char_type(C, ascii) }.
 
-% expansion of variable name tokens
-var(V) --> vhead(C), vrest(R), {atom_codes(V, [C|R])}.
+% expansion of identifier tokens
+% identifiers are case insensitive in classad spec, so I just casefold them here.
+ident(I) --> ihead(C), irest(R), { atom_codes(A, [C|R]), downcase_atom(A, I) }.
 
-vhead(C) --> [C], { char_type(C, alpha) }.
-vrest(L) --> [C], { char_type(C, alnum) }, vrest(R), {L=[C|R]}.
-vrest(L) --> "", {L=[]}.
+ihead(C) --> [C], { char_type(C, alpha) ; [C]="_" }.
+irest(L) --> [C], { char_type(C, alnum) ; [C]="_" }, irest(R), {L=[C|R]}.
+irest(L) --> "", {L=[]}.
 
 
 % expansion of number tokens
@@ -93,6 +94,8 @@ sym(T) --> "(", {T='('}.
 sym(T) --> ")", {T=')'}.
 sym(T) --> "[", {T='['}.
 sym(T) --> "]", {T=']'}.
+sym(T) --> "{", {T='{'}.
+sym(T) --> "}", {T='}'}.
 sym(T) --> ",", {T=','}.
 sym(T) --> "<", {T='<'}.
 sym(T) --> ">", {T='>'}.
@@ -101,5 +104,9 @@ sym(T) --> "+", {T='+'}.
 sym(T) --> "-", {T='-'}.
 sym(T) --> "*", {T='*'}.
 sym(T) --> "/", {T='/'}.
+sym(T) --> "%", {T='%'}.
 sym(T) --> "!", {T='!'}.
+sym(T) --> "?", {T='?'}.
 sym(T) --> ":", {T=':'}.
+sym(T) --> ";", {T=';'}.
+sym(T) --> ".", {T='.'}.
