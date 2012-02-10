@@ -1,11 +1,10 @@
 :- module(classad_parser,
           [parse/2,            % parse(+String, -ExprTree)
-           parse_assign/2,     % parse_assign(+String, -ExprTree)
-           parse_tl/2,         % parse_tl(+TokenList, -ExprTree)
-           parse_assign_tl/2   % parse_assign_tl(+TokenList, -ExprTree)
+           parse_tl/2          % parse_tl(+TokenList, -ExprTree)
           ]).
 
 :- use_module(library(lists)).
+:- use_module(library(assoc)).
 
 :- use_module(classad_lexer).
 
@@ -14,17 +13,12 @@ parse(S, E) :-
     classad_lexer:lex(S, TL),
     parse_tl(TL, E).
 
-% lex and parse a string to get an assignment expression
-parse_assign(S, E) :-
-    classad_lexer:lex(S, TL),
-    parse_assign_tl(TL, E).
-
 % invoke the grammar rule predicates on a token list to get an expr-tree
 parse_tl(TL, E) :- expr(E, TL, []).
-parse_assign_tl(TL, E) :- assign(E, TL, []).
 
-% a classad assignment to a variable
-assign(A) --> ident(V), ['='], expr(E), { A = '='(V, E) }.
+% reserved words in the classad spec
+reserved_expr(A) :- member(A, ['true', 'false', 'parent', 'undefined', 'error']).
+reserved_op(A) :- member(A, ['is', 'isnt']).
 
 expr(E) --> orseq(E).
 
@@ -48,23 +42,49 @@ muldivrest(SE, E) --> [OP], { member(OP, ['*','/','%']) }, unary(SE2), { TE =.. 
 muldivrest(E, E) --> [].
 
 unary(E) --> [OP], { member(OP,['!','-','+']) }, unary(SE), { E =.. [OP,SE] }.
-unary(E) --> atomic(E).
+unary(E) --> selectop(E).
 
+selectop(E) --> atomic(SE), ['.'], ident(V), { E='.'(SE, V) }.
+selectop(E) --> atomic(E).
+
+% order matters here:  
+% e.g. we definitely want func(E) before paren(E) and ident(E).
+atomic(E) --> classad(E).
+atomic(E) --> list(E).
 atomic(E) --> func(E).
 atomic(E) --> paren(E).
+atomic(E) --> reserved(E).
 atomic(E) --> num(E).
 atomic(E) --> str(E).
 atomic(E) --> ident(E).
 
-func(E) --> ident(F), ['('], argseq(A), [')'], { E=..[F,A] }.
+% a classad is a sequence of assignments: var = expr;
+% I load these into an association list from the standard assoc library
+classad(E) --> ['['], { list_to_assoc([], Mi) }, assignseq(Mi, Mo), [']'], { E = '[classad]'(Mo) }.
+assign(Mi, Mo) --> ident(V), ['='], expr(E), [';'], { put_assoc(V, Mi, E, Mo) }.
+assignseq(Mi, Mo) --> assign(Mi, Mt), assignseq(Mt, Mo).
+assignseq(M, M) --> [].
 
-argseq(A) --> expr(E), argrest(R), { A=[E|R] }.
-argseq(A) --> [], { A=[] }.
-argrest(A) --> [','], expr(E), argrest(R), { A=[E|R] }.
-argrest(A) --> [], { A=[] }.
+% a list is a comma-separated sequence of expressions between {}.
+list(E) --> ['{'], exprseq(E), ['}'].
 
+% function calls are of the typical form: f(a1, a2, ...)
+func(E) --> ident(F), ['('], exprseq(A), [')'], { E=..[F,A] }.
+
+% a comma-separated sequence of expressions, possibly empty
+exprseq(S) --> expr(E), exprrest(R), { S=[E|R] }.
+exprseq([]) --> [].
+exprrest(S) --> [','], expr(E), exprrest(R), { S=[E|R] }.
+exprrest([]) --> [].
+
+% parenthesized sub-expressions:
 paren(E) --> ['('], expr(E), [')'].
 
+% reserved identifiers that are valid atomic expression values
+% does not include reserved words that are operators
+reserved(R) --> [R], { reserved_expr(R) }.
+
+% numbers, strings, identifiers:
 num(N) --> [N], { number(N) }.
 str(S) --> [S], { S=str(_) }.
-ident(I) --> [I], { atomic(I), \+number(I) }.
+ident(I) --> [I], { atomic(I), \+number(I), \+reserved_expr(I), \+reserved_op(I) }.

@@ -131,7 +131,4 @@ test('or and 1', [nondet]) :-
     parse("2 < 3  &&  3 > 2   ||   1+2 < 1+3  &&  2+3 < 2*3", E),
     assertion(E == '||'('&&'('<'(2,3), '>'(3, 2)), '&&'('<'('+'(1,2), '+'(1,3)),'<'('+'(2,3), '*'(2,3))))).
 
-test('assign 1', [nondet]) :-
-    parse_assign("x = 2*y + g(x, y, z)", E),
-    assertion(E == '='(x, '+'('*'(2,y), g([x,y,z])))).
 :- end_tests(classad_parser_ut).
