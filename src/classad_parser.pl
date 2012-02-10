@@ -44,7 +44,7 @@ addsubrest(SE, E) --> [OP], { member(OP, ['+','-']) }, muldivseq(SE2), { TE =.. 
 addsubrest(E, E) --> [].
 
 muldivseq(E) --> unary(SE), muldivrest(SE, E).
-muldivrest(SE, E) --> [OP], { member(OP, ['*','/']) }, unary(SE2), { TE =.. [OP,SE,SE2] }, muldivrest(TE, E).
+muldivrest(SE, E) --> [OP], { member(OP, ['*','/','%']) }, unary(SE2), { TE =.. [OP,SE,SE2] }, muldivrest(TE, E).
 muldivrest(E, E) --> [].
 
 unary(E) --> [OP], { member(OP,['!','-','+']) }, unary(SE), { E =.. [OP,SE] }.
