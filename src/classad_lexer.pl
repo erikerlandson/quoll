@@ -15,7 +15,7 @@ tokseq(L) --> wschar, tokseq(R), {L=R}.
 % if you consume a token add it to the list:
 tokseq(L) --> tok(T), tokseq(R), {L=[T|R]}.
 % basis case: nothing but empty string is left:
-tokseq(L) --> "", {L=[]}.
+tokseq([]) --> "".
 
 % consume a whitespace character:
 wschar --> [C], {char_type(C,T), member(T,[white,end_of_line])}.
@@ -44,7 +44,7 @@ tok(T) --> sym(T).
 str(S) --> "\"", strseq(SS), "\"", {atom_codes(A, SS), S=str(A)}.
 
 strseq(SS) --> regchar(C), strseq(R), {SS=[C|R]}.
-strseq(SS) --> "", {SS=[]}.
+strseq([]) --> "".
 
 regchar(C) --> [C], { [C]\="\"", char_type(C, ascii) }.
 
@@ -54,7 +54,7 @@ ident(I) --> ihead(C), irest(R), { atom_codes(A, [C|R]), downcase_atom(A, I) }.
 
 ihead(C) --> [C], { char_type(C, alpha) ; [C]="_" }.
 irest(L) --> [C], { char_type(C, alnum) ; [C]="_" }, irest(R), {L=[C|R]}.
-irest(L) --> "", {L=[]}.
+irest([]) --> "".
 
 
 % expansion of number tokens
@@ -64,19 +64,19 @@ num(N) --> dhead(D), drest(R), dpseq(DS), expseq(ES), { flatten([D,R,DS,ES],L), 
 
 % stick an extra zero at the end because "1." causes yap conversion to blow up
 dpseq(S) --> ".", drest(R), {flatten([".",R,"0"],S)}.
-dpseq(S) --> "", {S=[]}.
+dpseq([]) --> "".
 
 expseq(S) --> expchar(E), expsign(ES), dhead(D), drest(R), {flatten([E,ES,D,R], S)}.
-expseq(S) --> "", {S=[]}.
+expseq([]) --> "".
 
 expchar(C) --> [C], { member(C, "eE") }.
 
 expsign(C) --> [C], { member(C, "+-") }.
-expsign(C) --> "", {C=[]}.
+expsign([]) --> "".
 
 dhead(D) --> [D], {char_type(D, digit)}.
 drest(L) --> dhead(D), drest(R), {L=[D|R]}.
-drest(L) --> "", {L=[]}.
+drest([]) --> "".
 
 
 % symbol tokens
