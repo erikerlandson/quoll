@@ -74,53 +74,68 @@ test('arg nesting', [nondet]) :-
     assertion(E == f([g(['-'(1)]), '-'('-'(2))])).
 
 test('* seq 1', [nondet]) :-
-   lex("2 * a", T),
-   parse(T, E),
-   assertion(E == '*'(2,a)).
+    lex("2 * a", T),
+    parse(T, E),
+    assertion(E == '*'(2,a)).
 
 test('/ seq 1', [nondet]) :-
-   lex("2 / a", T),
-   parse(T, E),
-   assertion(E == '/'(2,a)).
+    lex("2 / a", T),
+    parse(T, E),
+    assertion(E == '/'(2,a)).
 
 test('*/ seq 1', [nondet]) :-
-   lex("2 * b / a", T),
-   parse(T, E),
-   assertion(E == '/'('*'(2,b), a)).
+    lex("2 * b / a", T),
+    parse(T, E),
+    assertion(E == '/'('*'(2,b), a)).
 
 test('*/ seq 2', [nondet]) :-
-   lex("-2 * b / +a", T),
-   parse(T, E),
-   assertion(E == '/'('*'('-'(2),b), '+'(a))).
+    lex("-2 * b / +a", T),
+    parse(T, E),
+    assertion(E == '/'('*'('-'(2),b), '+'(a))).
 
 test('*/ seq 3', [nondet]) :-
-   lex("-2 * f(b) / +a", T),
-   parse(T, E),
-   assertion(E == '/'('*'('-'(2),f([b])), '+'(a))).
+    lex("-2 * f(b) / +a", T),
+    parse(T, E),
+    assertion(E == '/'('*'('-'(2),f([b])), '+'(a))).
 
 test('+ seq 1', [nondet]) :-
-   lex("2+a", T),
-   parse(T, E),
-   assertion(E == '+'(2,a)).
+    lex("2+a", T),
+    parse(T, E),
+    assertion(E == '+'(2,a)).
 
 test('- seq 1', [nondet]) :-
-   lex("2-a", T),
-   parse(T, E),
-   assertion(E == '-'(2,a)).
+    lex("2-a", T),
+    parse(T, E),
+    assertion(E == '-'(2,a)).
 
 test('+- seq 1', [nondet]) :-
-   lex("2-a+b", T),
-   parse(T, E),
-   assertion(E == '+'('-'(2,a), b)).
+    lex("2-a+b", T),
+    parse(T, E),
+    assertion(E == '+'('-'(2,a), b)).
 
 test('+- seq 2', [nondet]) :-
-   lex("2*a-a/3+5*b", T),
-   parse(T, E),
-   assertion(E == '+'('-'('*'(2,a),'/'(a,3)), '*'(5,b))).
+    lex("2*a-a/3+5*b", T),
+    parse(T, E),
+    assertion(E == '+'('-'('*'(2,a),'/'(a,3)), '*'(5,b))).
 
 test('+- seq 3', [nondet]) :-
-   lex("2*a-a/-3+-5*b", T),
-   parse(T, E),
-   assertion(E == '+'('-'('*'(2,a),'/'(a,'-'(3))), '*'('-'(5),b))).
+    lex("2*a-a/-3+-5*b", T),
+    parse(T, E),
+    assertion(E == '+'('-'('*'(2,a),'/'(a,'-'(3))), '*'('-'(5),b))).
+
+test('comp ==', [nondet]) :-
+    lex("a   ==b", T),
+    parse(T, E),
+    assertion(E == '=='(a,b)).
+
+test('comp =?=', [nondet]) :-
+    lex("name =?= \"fred\"", T),
+    parse(T, E),
+    assertion(E == '=?='(name, str(fred))).
+
+test('comp <', [nondet]) :-
+    lex("-2*a   <   b + -4 - c", T),
+    parse(T, E),
+    assertion(E == '<'('*'('-'(2),a), '-'('+'(b, '-'(4)), c))).
 
 :- end_tests(classad_parser_ut).
