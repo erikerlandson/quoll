@@ -42,13 +42,19 @@ muldivrest(SE, E) --> [OP], { member(OP, ['*','/','%']) }, unary(SE2), { TE =.. 
 muldivrest(E, E) --> [].
 
 unary(E) --> [OP], { member(OP,['!','-','+']) }, unary(SE), { E =.. [OP,SE] }.
-unary(E) --> selectop(E).
+unary(E) --> idxseq(E).
 
-selectop(E) --> atomic(SE), ['.'], ident(V), { E='.'(SE, V) }.
-selectop(E) --> atomic(E).
+idxseq(E) --> selseq(SE), idxrest(SE, E).
+idxrest(SE, E) --> ['['], expr(SE2), [']'], { TE = '[]'(SE,SE2) }, idxrest(TE, E).
+idxrest(E, E) --> [].
+
+selseq(E) --> atomic(SE), selrest(SE, E).
+selrest(SE, E) --> ['.'], ident(SE2), { TE = '.'(SE,SE2) }, selrest(TE, E).
+selrest(E, E) --> [].
 
 % order matters here:  
 % e.g. we definitely want func(E) before paren(E) and ident(E).
+% fun fact: abstime and reltime literals are not part of the grammar.
 atomic(E) --> classad(E).
 atomic(E) --> list(E).
 atomic(E) --> func(E).
