@@ -187,4 +187,12 @@ test('classad 3', [nondet]) :-
     assertion(M2 == y-'*'(2,x)),
     assertion(LL == [a-0]).
 
+test('conditional 1', [nondet]) :-
+    parse("(a <= 0) ? 0 : 2*a", E),
+    assertion(E == '?:'('<='(a, 0), 0, '*'(2,a))). 
+
+test('conditional 2', [nondet]) :-
+    parse("a || b  ?  c || d ? 0 : 1   :  e || f", E),
+    assertion(E == '?:'('||'(a,b), '?:'('||'(c,d), 0, 1), '||'(e,f))). 
+
 :- end_tests(classad_parser_ut).

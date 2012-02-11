@@ -20,7 +20,11 @@ parse_tl(TL, E) :- expr(E, TL, []).
 reserved_expr(A) :- member(A, ['true', 'false', 'parent', 'undefined', 'error']).
 reserved_op(A) :- member(A, ['is', 'isnt']).
 
-expr(E) --> orseq(E).
+expr(E) --> cond(E).
+
+cond(E) --> orseq(C), condrest(C, E).
+condrest(C, E) --> ['?'], expr(RT), [':'], expr(RF), { E = '?:'(C, RT, RF) }.
+condrest(C, C) --> [].
 
 orseq(E) --> andseq(SE), orrest(SE, E).
 orrest(SE, E) --> [OP], { member(OP, ['||']) }, andseq(SE2), { TE =.. [OP,SE,SE2] }, orrest(TE, E).
