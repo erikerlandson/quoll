@@ -2,6 +2,7 @@
 :- use_module(library(plunit)).
 
 :- use_module(library(lists)).
+:- use_module(library(assoc)).
 
 :- use_module('../src/classad_parser.pl').
 
@@ -162,5 +163,28 @@ test('list 1', [nondet]) :-
 test('list 2', [nondet]) :-
     parse("  {1  ,  1 + e  }  ", E),
     assertion(E == [1, '+'(1,e)]).
+
+test('classad 0', [nondet]) :-
+    parse("[]", E),
+    E = '[classad]'(M), assoc_to_list(M, L),
+    assertion(L == []).
+
+test('classad 1', [nondet]) :-
+    parse("[x=0;]", E),
+    E = '[classad]'(M), assoc_to_list(M, L),
+    assertion(L == [x-0]).
+
+test('classad 2', [nondet]) :-
+    parse("[x=0; y=2*x;]", E),
+    E = '[classad]'(M), assoc_to_list(M, L),
+    assertion(L == [x-0, y-'*'(2,x)]).
+
+test('classad 3', [nondet]) :-
+    parse("[x=0; y=2*x; z=[a=0;];]", E),
+    E = '[classad]'(M), assoc_to_list(M, L),
+    [M1, M2, z-'[classad]'(MM)] = L, assoc_to_list(MM, LL),
+    assertion(M1 == x-0),
+    assertion(M2 == y-'*'(2,x)),
+    assertion(LL == [a-0]).
 
 :- end_tests(classad_parser_ut).
